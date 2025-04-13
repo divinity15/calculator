@@ -1,0 +1,83 @@
+/* Container centers the calculator on the screen */
+.calculator-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background: #f0f0f0;
+  }
+  
+  /* Main calculator styling */
+  .calculator {
+    background: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    width: 320px;
+  }
+  
+  /* Display style */
+  .calculator-display {
+    width: 100%;
+    height: 40px;
+    text-align: right;
+    font-size: 1.5em;
+    padding: 5px;
+    border: none;
+    border-bottom: 2px solid #ddd;
+    margin-bottom: 15px;
+  }
+  
+  /* Grid layout for buttons */
+  .calculator-buttons {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 10px;
+  }
+  
+  /* Default button style */
+  .calc-button {
+    padding: 15px;
+    font-size: 1em;
+    border: none;
+    border-radius: 5px;
+    background: #e0e0e0;
+    cursor: pointer;
+    transition: background 0.3s ease;
+  }
+  
+  /* Hover effect for buttons */
+  .calc-button:hover {
+    background: #d0d0d0;
+  }
+  
+  /* Special style for equals button */
+  .equals-button {
+    background: #4CAF50;
+    color: #fff;
+  }
+  
+  .equals-button:hover {
+    background: #45A049;
+  }
+  
+  /* Special style for clear button */
+  .clear-button {
+    background: #f44336;
+    color: #fff;
+  }
+  
+  .clear-button:hover {
+    background: #e53935;
+  }
+  
+  /* Special style for delete button */
+  .delete-button {
+    background: #ff9800;
+    color: #fff;
+  }
+  
+  .delete-button:hover {
+    background: #fb8c00;
+  }
+  
