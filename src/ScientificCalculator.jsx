@@ -1,85 +1,85 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 
 const ProfessionalScientificCalculator = () => {
-  const [input, setInput] = useState("");
-  const [history, setHistory] = useState([]);
-  const [showHistory, setShowHistory] = useState(false);
-  const [degreeMode, setDegreeMode] = useState(true); // true for degrees, false for radians
-  const [memory, setMemory] = useState(null);
-  const [theme, setTheme] = useState("dark");
-  const [cursorPosition, setCursorPosition] = useState(0);
-  const [openParenCount, setOpenParenCount] = useState(0);
-  const [isFocused, setIsFocused] = useState(false);
+  // Дефинирање на состојбата за влез (input) и референцата за тастатурниот фокус
+  const [input, setInput] = useState('');
   const inputRef = useRef(null);
 
-  // Apply theme colors based on current theme
+  // Дефинирање на состојбата за меморија (memory)
+  const [memory, setMemory] = useState(null);
+
+  // Дефинирање на состојбата за историја (history)
+  const [history, setHistory] = useState([]);
+
+  // Дефинирање на состојбата за прикажување историја (showHistory)
+  const [showHistory, setShowHistory] = useState(false);
+
+  // Дефинирање на состојбата за курсор (cursorPosition) и дали е фокусиран (isFocused)
+  const [cursorPosition, setCursorPosition] = useState(0);
+  const [isFocused, setIsFocused] = useState(false);
+
+  // Дефинирање на состојбата за тема (theme)
+  const [theme, setTheme] = useState('light');
+
+  // Дефинирање на состојбата за степенски (degreeMode)
+  const [degreeMode, setDegreeMode] = useState(true);
+
+  // Ажурирање на root елементот со соодветна тема
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
   }, [theme]);
 
-  // Count open parentheses in input
-  useEffect(() => {
-    let openCount = 0;
-    for (let i = 0; i < input.length; i++) {
-      if (input[i] === '(') openCount++;
-      else if (input[i] === ')') openCount--;
-    }
-    setOpenParenCount(openCount);
-  }, [input]);
-
-  // Append value to the input at the current cursor position
-  const handleButtonClick = (value) => {
-    if (input === "Error") {
-      setInput(value);
-      setCursorPosition(value.length);
-    } else {
-      const pos = inputRef.current ? inputRef.current.selectionStart : cursorPosition;
-      const newInput = input.substring(0, pos) + value + input.substring(pos);
-      setInput(newInput);
-      setCursorPosition(pos + value.length);
-    }
-    if (inputRef.current) {
-      inputRef.current.focus();
-    }
+  // Функција за промена меѓу степени (DEG) и радијани (RAD)
+  const toggleDegreeMode = () => {
+    setDegreeMode(prev => !prev);
   };
 
-  // Insert a function and position the cursor inside the parentheses
-  const handleFunctionClick = (funcName) => {
-    const pos = inputRef.current ? inputRef.current.selectionStart : cursorPosition;
-    let newInput;
-    if (input === "Error") {
-      newInput = funcName + "()";
-      setInput(newInput);
-      // Place the cursor between the parentheses
-      setCursorPosition(funcName.length + 1);
-    } else {
-      newInput = input.substring(0, pos) + funcName + "()" + input.substring(pos);
-      setInput(newInput);
-      // Place the cursor inside the parentheses
-      setCursorPosition(pos + funcName.length + 1);
+  // Пресметка на факториел (factorial)
+  const factorial = (n) => {
+    if (n < 0) return 'Error';
+    let res = 1;
+    for (let i = 1; i <= n; i++) {
+      res *= i;
     }
-    if (inputRef.current) {
-      inputRef.current.focus();
-    }
+    return res;
   };
 
-  // Update input and cursor position on change
+  // Сметање на број на отворени загради (openParenCount)
+  const openParenCount =
+    input.split('').filter(char => char === '(').length -
+    input.split('').filter(char => char === ')').length;
+
+  // Ракување со промена во полето за влез (handleInputChange)
   const handleInputChange = (e) => {
     setInput(e.target.value);
     setCursorPosition(e.target.selectionStart);
   };
 
-  // Clear the entire input
-  const handleClear = () => {
-    setInput("");
-    setCursorPosition(0);
+  // Ракување со притисок на копче од тастатурата (handleButtonClick)
+  const handleButtonClick = (value) => {
+    const pos = inputRef.current ? inputRef.current.selectionStart : cursorPosition;
+    const newInput = input.substring(0, pos) + value + input.substring(pos);
+    setInput(newInput);
+    setCursorPosition(pos + value.length);
     if (inputRef.current) {
       inputRef.current.focus();
     }
   };
 
-  // Delete the character before the cursor
+  // Ракување со внес на функција (handleFunctionClick)
+  const handleFunctionClick = (func) => {
+    const pos = inputRef.current ? inputRef.current.selectionStart : cursorPosition;
+    const newInput = input.substring(0, pos) + func + '(' + input.substring(pos);
+    setInput(newInput);
+    setCursorPosition(pos + func.length + 1);
+    if (inputRef.current) {
+      inputRef.current.focus();
+    }
+  };
+
+  // Ракување со бришење на еден карактер (handleDelete)
   const handleDelete = () => {
+    if (!input) return;
     const pos = inputRef.current ? inputRef.current.selectionStart : cursorPosition;
     if (pos > 0) {
       const newInput = input.substring(0, pos - 1) + input.substring(pos);
@@ -91,30 +91,16 @@ const ProfessionalScientificCalculator = () => {
     }
   };
 
-  // Convert between degrees and radians for trig functions
-  const convertAngle = (angle) => {
-    return degreeMode ? (angle * Math.PI / 180) : angle;
-  };
-
-  // Calculate the factorial of a number
-  const factorial = (n) => {
-    if (n === 0 || n === 1) return 1;
-    let result = 1;
-    for (let i = 2; i <= n; i++) {
-      result *= i;
-    }
-    return result;
-  };
-
-  // Toggle between degree and radian mode
-  const toggleDegreeMode = () => {
-    setDegreeMode(!degreeMode);
+  // Ракување со целосно чистење (handleClear)
+  const handleClear = () => {
+    setInput('');
+    setCursorPosition(0);
     if (inputRef.current) {
       inputRef.current.focus();
     }
   };
 
-  // Handling memory operations
+  // Ракување со функции за меморија (handleMemory)
   const handleMemory = (operation) => {
     if (operation === 'MS') {
       try {
@@ -125,10 +111,8 @@ const ProfessionalScientificCalculator = () => {
       }
     } else if (operation === 'MR') {
       if (memory !== null) {
-        const pos = inputRef.current ? inputRef.current.selectionStart : cursorPosition;
-        const newInput = input.substring(0, pos) + memory + input.substring(pos);
-        setInput(newInput);
-        setCursorPosition(pos + String(memory).length);
+        setInput(String(memory));
+        setCursorPosition(String(memory).length);
       }
     } else if (operation === 'MC') {
       setMemory(null);
@@ -152,12 +136,12 @@ const ProfessionalScientificCalculator = () => {
     }
   };
 
-  // Toggle theme between light and dark
+  // Префрлање тема меѓу светла и темна (toggleTheme)
   const toggleTheme = () => {
     setTheme(prev => prev === "light" ? "dark" : "light");
   };
 
-  // Balance parentheses before evaluation
+  // Израмнување на загради пред пресметка (balanceParentheses)
   const balanceParentheses = (expression) => {
     let openCount = 0;
     for (const char of expression) {
@@ -170,7 +154,7 @@ const ProfessionalScientificCalculator = () => {
     return expression;
   };
 
-  // Evaluate the expression, replacing scientific function names with Math equivalents
+  // Пресметување на изразот, заменувајќи научни функции со Math еквиваленти (handleEvaluate)
   const handleEvaluate = () => {
     try {
       let expression = balanceParentheses(input);
@@ -213,7 +197,7 @@ const ProfessionalScientificCalculator = () => {
     }
   };
 
-  // Select a calculation from history
+  // Избирање пресметка од историја (selectHistoryItem)
   const selectHistoryItem = (item) => {
     setInput(item);
     setCursorPosition(item.length);
@@ -223,7 +207,7 @@ const ProfessionalScientificCalculator = () => {
     }
   };
 
-  // Handle special functions
+  // Ракување со специјални функции (handleSpecialFunction)
   const handleSpecialFunction = (func) => {
     if (func === 'π') {
       handleButtonClick('π');
@@ -259,6 +243,7 @@ const ProfessionalScientificCalculator = () => {
     }
   };
 
+  // Дефинирање на основните копчиња (mainButtons)
   const mainButtons = [
     { value: '7', display: '7', class: 'num-button' },
     { value: '8', display: '8', class: 'num-button' },
@@ -284,7 +269,8 @@ const ProfessionalScientificCalculator = () => {
     { value: ')', display: ')', class: 'bracket-button' },
     { value: '=', display: '=', class: 'equals-button' }
   ];
-  
+
+  // Дефинирање на научните копчиња (scientificButtons)
   const scientificButtons = [
     { value: 'sin', display: 'sin', class: 'sci-button', isFunction: true },
     { value: 'cos', display: 'cos', class: 'sci-button', isFunction: true },
@@ -310,7 +296,8 @@ const ProfessionalScientificCalculator = () => {
     { value: 'rand', display: 'Rand', class: 'sci-button', isFunction: false },
     { value: 'deg', display: degreeMode ? 'DEG' : 'RAD', class: 'mode-button', isFunction: false }
   ];
-  
+
+  // Дефинирање на копчињата за меморија (memoryButtons)
   const memoryButtons = [
     { value: 'MS', display: 'MS', class: 'memory-button' },
     { value: 'MR', display: 'MR', class: 'memory-button' },
@@ -318,7 +305,7 @@ const ProfessionalScientificCalculator = () => {
     { value: 'M+', display: 'M+', class: 'memory-button' },
     { value: 'M-', display: 'M-', class: 'memory-button' }
   ];
-  
+
   return (
     <div className={`calculator-container ${theme}`}>
       <div className="calculator">
@@ -364,19 +351,21 @@ const ProfessionalScientificCalculator = () => {
             {history.length === 0 ? (
               <div className="no-history">No calculations yet</div>
             ) : (
-              history.map((item, index) => (
-                <div 
-                  key={index} 
-                  className="history-item"
-                  onClick={() => selectHistoryItem(item)}
-                >
-                  {item}
-                </div>
-              )).reverse()
+              history
+                .map((item, index) => (
+                  <div
+                    key={index}
+                    className="history-item"
+                    onClick={() => selectHistoryItem(item)}
+                  >
+                    {item}
+                  </div>
+                ))
+                .reverse()
             )}
           </div>
         )}
-      
+
         <div className="memory-buttons">
           {memoryButtons.map((btn) => (
             <button
@@ -416,9 +405,9 @@ const ProfessionalScientificCalculator = () => {
           {mainButtons.map((btn) => {
             if (btn.value === 'C') {
               return (
-                <button 
-                  key={btn.value} 
-                  onClick={handleClear} 
+                <button
+                  key={btn.value}
+                  onClick={handleClear}
                   className={`calc-button ${btn.class}`}
                 >
                   {btn.display}
@@ -426,9 +415,9 @@ const ProfessionalScientificCalculator = () => {
               );
             } else if (btn.value === 'DEL') {
               return (
-                <button 
-                  key={btn.value} 
-                  onClick={handleDelete} 
+                <button
+                  key={btn.value}
+                  onClick={handleDelete}
                   className={`calc-button ${btn.class}`}
                 >
                   {btn.display}
@@ -436,9 +425,9 @@ const ProfessionalScientificCalculator = () => {
               );
             } else if (btn.value === '=') {
               return (
-                <button 
-                  key={btn.value} 
-                  onClick={handleEvaluate} 
+                <button
+                  key={btn.value}
+                  onClick={handleEvaluate}
                   className={`calc-button ${btn.class}`}
                 >
                   {btn.display}
@@ -593,7 +582,9 @@ const ProfessionalScientificCalculator = () => {
           outline: 2px solid var(--equals-button-bg);
         }
         
-        .memory-buttons, .scientific-buttons, .main-buttons {
+        .memory-buttons,
+        .scientific-buttons,
+        .main-buttons {
           display: grid;
           gap: 8px;
           margin-bottom: 8px;
@@ -672,11 +663,13 @@ const ProfessionalScientificCalculator = () => {
           background: var(--delete-button-hover);
         }
         
-        .sci-button, .constant-button {
+        .sci-button,
+        .constant-button {
           background: var(--sci-button-bg);
         }
         
-        .sci-button:hover, .constant-button:hover {
+        .sci-button:hover,
+        .constant-button:hover {
           background: var(--sci-button-hover);
         }
         
